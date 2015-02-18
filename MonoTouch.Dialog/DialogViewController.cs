@@ -156,7 +156,8 @@ namespace MonoTouch.Dialog
 		/// Controls whether the DialogViewController should auto rotate
 		/// </summary>
 		public bool Autorotate { get; set; }
-		
+
+		[Obsolete]
 		public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
 		{
 			return Autorotate || toInterfaceOrientation == UIInterfaceOrientation.Portrait;
@@ -377,6 +378,8 @@ namespace MonoTouch.Dialog
 
 			public override float GetHeightForHeader (UITableView tableView, int sectionIdx)
 			{
+				if (Root.Sections == null)
+					return -1;
 				var section = Root.Sections [sectionIdx];
 				if (section.HeaderView == null)
 					return -1;
@@ -473,8 +476,9 @@ namespace MonoTouch.Dialog
 			// We can not push a nav controller into a nav controller
 			if (nav != null && !(controller is UINavigationController))
 				nav.PushViewController (controller, true);
-			else
-				PresentModalViewController (controller, true);
+			else {
+				PresentViewController (controller, true, () => {});
+			}
 		}
 
 		/// <summary>
@@ -489,7 +493,7 @@ namespace MonoTouch.Dialog
 			if (nav != null)
 				nav.PopViewControllerAnimated (animated);
 			else
-				DismissModalViewControllerAnimated (animated);
+				DismissViewController (animated, ()=>{});
 		}
 
 		void SetupSearch ()
@@ -586,6 +590,14 @@ namespace MonoTouch.Dialog
 				tableView.ReloadData ();
 				dirty = false;
 			}
+
+			// removes keyboard when clicking outside of text input
+			var tap = new UITapGestureRecognizer ();
+			tap.CancelsTouchesInView = false;
+			tap.AddTarget (() =>{
+				View.EndEditing (true);
+			});
+			View.AddGestureRecognizer (tap);
 		}
 
 		public bool Pushing {

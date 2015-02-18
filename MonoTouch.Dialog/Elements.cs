@@ -585,6 +585,7 @@ namespace MonoTouch.Dialog
 			
 			public bool Autorotate { get; set; }
 			
+			[Obsolete]
 			public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
 			{
 				return Autorotate;
@@ -1044,10 +1045,15 @@ namespace MonoTouch.Dialog
 			return tableView.StringSize (c, font, size, UILineBreakMode.WordWrap).Height + 10;
 		}
 	}
+
+	public interface IRadioElement
+	{
+		int RadioIdx { get; set; }
+	}
 	
-	public class RadioElement : StringElement {
+	public class RadioElement : StringElement, IRadioElement {
 		public string Group;
-		internal int RadioIdx;
+		public int RadioIdx { get; set; }
 		
 		public RadioElement (string caption, string group) : base (caption)
 		{
@@ -1131,7 +1137,7 @@ namespace MonoTouch.Dialog
 	
 	public class ImageElement : Element {
 		public UIImage Value;
-		static RectangleF rect = new RectangleF (0, 0, dimx, dimy);
+		protected static RectangleF rect = new RectangleF (0, 0, dimx, dimy);
 		static NSString ikey = new NSString ("ImageElement");
 		UIImage scaled;
 		UIPopoverController popover;
@@ -1158,7 +1164,7 @@ namespace MonoTouch.Dialog
 			}
 		}
 		
-		UIImage Scale (UIImage source)
+		protected virtual UIImage Scale (UIImage source)
 		{
 			UIGraphics.BeginImageContext (new SizeF (dimx, dimy));
 			var ctx = UIGraphics.GetCurrentContext ();
@@ -1271,7 +1277,7 @@ namespace MonoTouch.Dialog
 		{
 			Value = image;
 			scaled = Scale (image);
-			currentController.DismissModalViewControllerAnimated (true);
+			currentController.DismissViewController (true, null);
 			
 		}
 		
@@ -1318,23 +1324,24 @@ namespace MonoTouch.Dialog
 		public string Value { 
 			get {
 				if (entry == null)
-					return val;
+					return privateValue;
 				var newValue = entry.Text;
-				if (newValue == val)
-					return val;
-				val = newValue;
+				if (newValue == privateValue)
+					return privateValue;
+				privateValue = newValue;
 
+				// BJA: why is this sending an event in a getter ?
 				if (Changed != null)
 					Changed (this, EventArgs.Empty);
-				return val;
+				return privateValue;
 			}
 			set {
-				val = value;
+				privateValue = value;
 				if (entry != null)
 					entry.Text = value;
 			}
 		}
-		protected string val;
+		public string privateValue;
 
 		/// <summary>
 		/// The key used for reusable UITableViewCells.
@@ -1605,7 +1612,7 @@ namespace MonoTouch.Dialog
 					
 					if (!returnKeyType.HasValue) {
 						var returnType = UIReturnKeyType.Default;
-						
+
 						foreach (var e in (Parent as Section).Elements) {
 							if (e == this)
 								self = this;
@@ -1616,7 +1623,7 @@ namespace MonoTouch.Dialog
 					} else
 						entry.ReturnKeyType = returnKeyType.Value;
 					
-					tv.ScrollToRow (IndexPath, UITableViewScrollPosition.Middle, true);
+					//tv.ScrollToRow (IndexPath, UITableViewScrollPosition.Middle, true);
 				};
 				cell.ContentView.AddSubview (entry);
 			} else
@@ -1717,13 +1724,13 @@ namespace MonoTouch.Dialog
 		
 		public DateTimeElement (string caption, DateTime date) : base (caption)
 		{
-			DateValue = date;
+			DateValue = date.ToUniversalTime();
 			Value = FormatDate (date);
 		}	
 		
 		public override UITableViewCell GetCell (UITableView tv)
 		{
-			Value = FormatDate (DateValue);
+			Value = FormatDate (DateValue.ToUniversalTime());
 			var cell = base.GetCell (tv);
 			cell.Accessory = UITableViewCellAccessory.DisclosureIndicator;
             cell.SelectionStyle = UITableViewCellSelectionStyle.Blue;
@@ -1756,7 +1763,7 @@ namespace MonoTouch.Dialog
 		public virtual string FormatDate (DateTime dt)
 		{
 			dt = GetDateWithKind (dt);
-			return fmt.ToString (dt) + " " + dt.ToLocalTime ().ToShortTimeString ();
+			return fmt.ToString (dt) + " " + dt.ToUniversalTime ().ToShortTimeString ();
 		}
 		
 		public virtual UIDatePicker CreatePicker ()
@@ -1764,14 +1771,22 @@ namespace MonoTouch.Dialog
 			var picker = new UIDatePicker (RectangleF.Empty){
 				AutoresizingMask = UIViewAutoresizing.FlexibleWidth,
 				Mode = UIDatePickerMode.DateAndTime,
-				Date = DateValue
+				Locale = NSLocale.CurrentLocale,
+				TimeZone = NSTimeZone.FromAbbreviation("GMT"),
+				Calendar = NSCalendar.CurrentCalendar,
+				Date = GetDateWithKind(DateValue),
 			};
 			return picker;
 		}
 		                                                                                                                                
-		static RectangleF PickerFrameWithSize (SizeF size)
+		static internal RectangleF PickerFrameWithSize (SizeF size, RectangleF screenFrame = default(RectangleF))
 		{                                                                                                                                    
-			var screenRect = UIScreen.MainScreen.ApplicationFrame;
+			RectangleF screenRect;
+			if (screenFrame == default(RectangleF))
+				screenRect = UIScreen.MainScreen.ApplicationFrame;
+			else
+				screenRect = screenFrame;
+
 			float fY = 0, fX = 0;
 			
 			switch (UIApplication.SharedApplication.StatusBarOrientation){
@@ -1791,7 +1806,7 @@ namespace MonoTouch.Dialog
 			return new RectangleF (fX, fY, size.Width, size.Height);
 		}                                                                                                                                    
 
-		class MyViewController : UIViewController {
+		internal class MyViewController : UIViewController {
 			DateTimeElement container;
 			
 			public MyViewController (DateTimeElement container)
@@ -1802,6 +1817,8 @@ namespace MonoTouch.Dialog
 			public override void ViewWillDisappear (bool animated)
 			{
 				base.ViewWillDisappear (animated);
+				if (container.datePicker == null)
+					return;
 				container.DateValue = container.datePicker.Date;
 				if (container.DateSelected != null)
 					container.DateSelected (container);
@@ -1814,7 +1831,8 @@ namespace MonoTouch.Dialog
 			}
 			
 			public bool Autorotate { get; set; }
-			
+
+			[Obsolete]
 			public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
 			{
 				return Autorotate;
@@ -1992,7 +2010,7 @@ namespace MonoTouch.Dialog
 			return cell;
 		}
 		
-		public float GetHeight (UITableView tableView, NSIndexPath indexPath)
+		public virtual float GetHeight (UITableView tableView, NSIndexPath indexPath)
 		{
 			return ContainerView.Bounds.Height+1;
 		}
@@ -2556,7 +2574,7 @@ namespace MonoTouch.Dialog
 				uint row = 0;
 				
 				foreach (Element e in s.Elements){
-					if (!(e is RadioElement))
+					if (!(e is IRadioElement))
 						continue;
 					
 					if (current == idx){
@@ -2598,7 +2616,7 @@ namespace MonoTouch.Dialog
 			int current = 0;
 			foreach (Section s in Sections){				
 				foreach (Element e in s.Elements){
-					var re = e as RadioElement;
+					var re = e as IRadioElement;
 					if (re != null)
 						re.RadioIdx = current++;
 					if (UnevenRows == false && e is IElementSizing)
@@ -2798,7 +2816,7 @@ namespace MonoTouch.Dialog
 		/// <summary>
 		/// The currently selected Radio item in the whole Root.
 		/// </summary>
-		public int RadioSelected {
+		public virtual int RadioSelected {
 			get {
 				var radio = group as RadioGroup;
 				if (radio != null)
@@ -2831,7 +2849,7 @@ namespace MonoTouch.Dialog
 				
 				foreach (var s in Sections){
 					foreach (var e in s.Elements){
-						if (!(e is RadioElement))
+						if (!(e is IRadioElement))
 							continue;
 						
 						if (current == selected){
