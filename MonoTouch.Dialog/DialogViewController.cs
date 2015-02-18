@@ -10,10 +10,29 @@
 // MIT X11 license
 //
 using System;
-using MonoTouch.UIKit;
-using System.Drawing;
 using System.Collections.Generic;
+
+#if XAMCORE_2_0
+using Foundation;
+using UIKit;
+using CoreGraphics;
+
+using NSAction = global::System.Action;
+#else
 using MonoTouch.Foundation;
+using MonoTouch.UIKit;
+using MonoTouch.CoreGraphics;
+#endif
+
+#if !XAMCORE_2_0
+using nint = global::System.Int32;
+using nuint = global::System.UInt32;
+using nfloat = global::System.Single;
+
+using CGSize = global::System.Drawing.SizeF;
+using CGPoint = global::System.Drawing.PointF;
+using CGRect = global::System.Drawing.RectangleF;
+#endif
 
 namespace MonoTouch.Dialog
 {
@@ -156,7 +175,7 @@ namespace MonoTouch.Dialog
 		/// Controls whether the DialogViewController should auto rotate
 		/// </summary>
 		public bool Autorotate { get; set; }
-
+		
 		[Obsolete]
 		public override bool ShouldAutorotateToInterfaceOrientation (UIInterfaceOrientation toInterfaceOrientation)
 		{
@@ -171,7 +190,7 @@ namespace MonoTouch.Dialog
 			if (refreshView != null) {
 				var bounds = View.Bounds;
 				
-				refreshView.Frame = new RectangleF (0, -bounds.Height, bounds.Width, bounds.Height);
+				refreshView.Frame = new CGRect (0, -bounds.Height, bounds.Width, bounds.Height);
 			}
 			
 			ReloadData ();
@@ -309,39 +328,39 @@ namespace MonoTouch.Dialog
 			
 			public override void AccessoryButtonTapped (UITableView tableView, NSIndexPath indexPath)
 			{
-				var section = Root.Sections [indexPath.Section];
-				var element = (section.Elements [indexPath.Row] as StyledStringElement);
+				var section = Root.Sections [(int) indexPath.Section];
+				var element = (section.Elements [(int) indexPath.Row] as StyledStringElement);
 				if (element != null)
 					element.AccessoryTap ();
 			}
 			
-			public override int RowsInSection (UITableView tableview, int section)
+			public override nint RowsInSection (UITableView tableview, nint section)
 			{
-				var s = Root.Sections [section];
+				var s = Root.Sections [(int) section];
 				var count = s.Elements.Count;
 				
 				return count;
 			}
 
-			public override int NumberOfSections (UITableView tableView)
+			public override nint NumberOfSections (UITableView tableView)
 			{
 				return Root.Sections.Count;
 			}
 
-			public override string TitleForHeader (UITableView tableView, int section)
+			public override string TitleForHeader (UITableView tableView, nint section)
 			{
-				return Root.Sections [section].Caption;
+				return Root.Sections [(int) section].Caption;
 			}
 
-			public override string TitleForFooter (UITableView tableView, int section)
+			public override string TitleForFooter (UITableView tableView, nint section)
 			{
-				return Root.Sections [section].Footer;
+				return Root.Sections [(int) section].Footer;
 			}
 
-			public override UITableViewCell GetCell (UITableView tableView, MonoTouch.Foundation.NSIndexPath indexPath)
+			public override UITableViewCell GetCell (UITableView tableView, NSIndexPath indexPath)
 			{
-				var section = Root.Sections [indexPath.Section];
-				var element = section.Elements [indexPath.Row];
+				var section = Root.Sections [(int) indexPath.Section];
+				var element = section.Elements [(int) indexPath.Row];
 				
 				return element.GetCell (tableView);
 			}
@@ -349,8 +368,8 @@ namespace MonoTouch.Dialog
 			public override void WillDisplay (UITableView tableView, UITableViewCell cell, NSIndexPath indexPath)
 			{
 				if (Root.NeedColorUpdate){
-					var section = Root.Sections [indexPath.Section];
-					var element = section.Elements [indexPath.Row];
+					var section = Root.Sections [(int) indexPath.Section];
+					var element = section.Elements [(int) indexPath.Row];
 					var colorized = element as IColorizeBackground;
 					if (colorized != null)
 						colorized.WillDisplay (tableView, cell, indexPath);
@@ -370,13 +389,13 @@ namespace MonoTouch.Dialog
 				Container.Selected (indexPath);
 			}			
 			
-			public override UIView GetViewForHeader (UITableView tableView, int sectionIdx)
+			public override UIView GetViewForHeader (UITableView tableView, nint sectionIdx)
 			{
-				var section = Root.Sections [sectionIdx];
+				var section = Root.Sections [(int) sectionIdx];
 				return section.HeaderView;
 			}
 
-			public override float GetHeightForHeader (UITableView tableView, int sectionIdx)
+			public override nfloat GetHeightForHeader (UITableView tableView, nint sectionIdx)
 			{
 				if (Root.Sections == null)
 					return -1;
@@ -386,15 +405,15 @@ namespace MonoTouch.Dialog
 				return section.HeaderView.Frame.Height;
 			}
 
-			public override UIView GetViewForFooter (UITableView tableView, int sectionIdx)
+			public override UIView GetViewForFooter (UITableView tableView, nint sectionIdx)
 			{
-				var section = Root.Sections [sectionIdx];
+				var section = Root.Sections [(int) sectionIdx];
 				return section.FooterView;
 			}
 			
-			public override float GetHeightForFooter (UITableView tableView, int sectionIdx)
+			public override nfloat GetHeightForFooter (UITableView tableView, nint sectionIdx)
 			{
-				var section = Root.Sections [sectionIdx];
+				var section = Root.Sections [(int) sectionIdx];
 				if (section.FooterView == null)
 					return -1;
 				return section.FooterView.Frame.Height;
@@ -448,14 +467,14 @@ namespace MonoTouch.Dialog
 		public class SizingSource : Source {
 			public SizingSource (DialogViewController controller) : base (controller) {}
 			
-			public override float GetHeightForRow (UITableView tableView, MonoTouch.Foundation.NSIndexPath indexPath)
+			public override nfloat GetHeightForRow (UITableView tableView, NSIndexPath indexPath)
 			{
-				var section = Root.Sections [indexPath.Section];
-				var element = section.Elements [indexPath.Row];
+				var section = Root.Sections [(int) indexPath.Section];
+				var element = section.Elements [(int) indexPath.Row];
 				
 				var sizable = element as IElementSizing;
 				if (sizable == null)
-					return tableView.RowHeight;
+					return (nfloat)tableView.RowHeight;
 				return sizable.GetHeight (tableView, indexPath);
 			}
 		}
@@ -477,7 +496,7 @@ namespace MonoTouch.Dialog
 			if (nav != null && !(controller is UINavigationController))
 				nav.PushViewController (controller, true);
 			else {
-				PresentViewController (controller, true, () => {});
+				PresentModalViewController (controller, true);
 			}
 		}
 
@@ -489,17 +508,23 @@ namespace MonoTouch.Dialog
 		{
 			var parent = ParentViewController;
 			var nav = parent as UINavigationController;
-			
+#if XAMCORE_2_0
+			if (nav != null)
+				nav.PopViewController (animated);
+			else
+				DismissModalViewController (animated, ()=>{});
+#else
 			if (nav != null)
 				nav.PopViewControllerAnimated (animated);
 			else
-				DismissViewController (animated, ()=>{});
+				DismissModalViewControllerAnimated (animated);
+#endif
 		}
 
 		void SetupSearch ()
 		{
 			if (enableSearch){
-				searchBar = new UISearchBar (new RectangleF (0, 0, tableView.Bounds.Width, 44)) {
+				searchBar = new UISearchBar (new CGRect (0, 0, tableView.Bounds.Width, 44)) {
 					Delegate = new SearchDelegate (this)
 				};
 				if (SearchPlaceholder != null)
@@ -513,21 +538,21 @@ namespace MonoTouch.Dialog
 		
 		public virtual void Deselected (NSIndexPath indexPath)
 		{
-			var section = root.Sections [indexPath.Section];
-			var element = section.Elements [indexPath.Row];
+			var section = root.Sections [(int) indexPath.Section];
+			var element = section.Elements [(int) indexPath.Row];
 			
 			element.Deselected (this, tableView, indexPath);
 		}
 		
 		public virtual void Selected (NSIndexPath indexPath)
 		{
-			var section = root.Sections [indexPath.Section];
-			var element = section.Elements [indexPath.Row];
+			var section = root.Sections [(int) indexPath.Section];
+			var element = section.Elements [(int) indexPath.Row];
 
 			element.Selected (this, tableView, indexPath);
 		}
 		
-		public virtual UITableView MakeTableView (RectangleF bounds, UITableViewStyle style)
+		public virtual UITableView MakeTableView (CGRect bounds, UITableViewStyle style)
 		{
 			return new UITableView (bounds, style);
 		}
@@ -557,17 +582,19 @@ namespace MonoTouch.Dialog
 				// The dimensions should be large enough so that even if the user scrolls, we render the
 				// whole are with the background color.
 				var bounds = View.Bounds;
-				refreshView = MakeRefreshTableHeaderView (new RectangleF (0, -bounds.Height, bounds.Width, bounds.Height));
+				refreshView = MakeRefreshTableHeaderView (new CGRect (0, -bounds.Height, bounds.Width, bounds.Height));
 				if (reloading)
 					refreshView.SetActivity (true);
 				TableView.AddSubview (refreshView);
 			}
 		}
 		
-		public virtual RefreshTableHeaderView MakeRefreshTableHeaderView (RectangleF rect)
+		public virtual RefreshTableHeaderView MakeRefreshTableHeaderView (CGRect rect)
 		{
 			return new RefreshTableHeaderView (rect);
 		}
+
+		public event EventHandler ViewAppearing;
 
 		public override void ViewWillAppear (bool animated)
 		{
@@ -575,7 +602,7 @@ namespace MonoTouch.Dialog
 			if (AutoHideSearch){
 				if (enableSearch){
 					if (TableView.ContentOffset.Y < 44)
-						TableView.ContentOffset = new PointF (0, 44);
+						TableView.ContentOffset = new CGPoint (0, 44);
 				}
 			}
 			if (root == null)
@@ -598,6 +625,10 @@ namespace MonoTouch.Dialog
 				View.EndEditing (true);
 			});
 			View.AddGestureRecognizer (tap);
+			//
+			
+			if (ViewAppearing != null)
+				ViewAppearing (this, EventArgs.Empty);
 		}
 
 		public bool Pushing {
