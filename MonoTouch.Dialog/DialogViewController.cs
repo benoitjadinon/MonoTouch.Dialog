@@ -19,19 +19,9 @@ using CoreGraphics;
 
 using NSAction = global::System.Action;
 #else
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
-#endif
-
-#if !XAMCORE_2_0
-using nint = global::System.Int32;
-using nuint = global::System.UInt32;
-using nfloat = global::System.Single;
-
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using Foundation;
+using UIKit;
+using CoreGraphics;
 #endif
 
 namespace MonoTouch.Dialog
@@ -399,7 +389,7 @@ namespace MonoTouch.Dialog
 			{
 				if (Root.Sections == null)
 					return -1;
-				var section = Root.Sections [sectionIdx];
+				var section = Root.Sections [(int)sectionIdx];
 				if (section.HeaderView == null)
 					return -1;
 				return section.HeaderView.Frame.Height;
@@ -512,10 +502,10 @@ namespace MonoTouch.Dialog
 			if (nav != null)
 				nav.PopViewController (animated);
 			else
-				DismissModalViewController (animated, ()=>{});
+				DismissModalViewController (animated);
 #else
 			if (nav != null)
-				nav.PopViewControllerAnimated (animated);
+				nav.PopViewController (animated);
 			else
 				DismissModalViewControllerAnimated (animated);
 #endif

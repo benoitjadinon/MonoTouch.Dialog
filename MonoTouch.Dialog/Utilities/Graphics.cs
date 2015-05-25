@@ -3,17 +3,7 @@ using System;
 #if XAMCORE_2_0
 using CoreGraphics;
 #else
-using MonoTouch.CoreGraphics;
-#endif
-
-#if !XAMCORE_2_0
-using nint = global::System.Int32;
-using nuint = global::System.UInt32;
-using nfloat = global::System.Single;
-
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using CoreGraphics;
 #endif
 
 namespace MonoTouch.Dialog

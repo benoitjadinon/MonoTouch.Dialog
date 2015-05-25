@@ -3,7 +3,7 @@
 // sample code for new elements. 
 //
 using System;
-using System.Drawing;
+using CoreGraphics;
 using System.Threading;
 
 #if XAMCORE_2_0
@@ -12,10 +12,10 @@ using Foundation;
 using UIKit;
 using CoreGraphics;
 #else
-using MonoTouch.CoreFoundation;
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
+using CoreFoundation;
+using Foundation;
+using UIKit;
+using CoreGraphics;
 #endif
 
 #if !XAMCORE_2_0
@@ -23,9 +23,9 @@ using nint = global::System.Int32;
 using nuint = global::System.UInt32;
 using nfloat = global::System.Single;
 
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using CGSize = global::CGSize;
+using CGPoint = global::CGPoint;
+using CGRect = global::CGRect;
 #endif
 
 namespace MonoTouch.Dialog

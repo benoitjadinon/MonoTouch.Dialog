@@ -1,14 +1,14 @@
 using System;
-using System.Drawing;
+using CoreGraphics;
 
 #if XAMCORE_2_0
 using UIKit;
 using CoreGraphics;
 using Foundation;
 #else
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
-using MonoTouch.Foundation;
+using UIKit;
+using CoreGraphics;
+using Foundation;
 #endif
 
 #if !XAMCORE_2_0
@@ -16,9 +16,9 @@ using nint = global::System.Int32;
 using nuint = global::System.UInt32;
 using nfloat = global::System.Single;
 
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using CGSize = global::CGSize;
+using CGPoint = global::CGPoint;
+using CGRect = global::CGRect;
 #endif
 
 

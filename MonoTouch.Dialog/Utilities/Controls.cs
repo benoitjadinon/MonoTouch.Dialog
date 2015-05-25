@@ -1,5 +1,5 @@
 using System;
-using System.Drawing;
+using CoreGraphics;
 using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -10,10 +10,10 @@ using CoreGraphics;
 using Foundation;
 using CoreAnimation;
 #else
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
-using MonoTouch.Foundation;
-using MonoTouch.CoreAnimation;
+using UIKit;
+using CoreGraphics;
+using Foundation;
+using CoreAnimation;
 #endif
 
 using MonoTouch.Dialog.Utilities;
@@ -23,9 +23,9 @@ using nint = global::System.Int32;
 using nuint = global::System.UInt32;
 using nfloat = global::System.Single;
 
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using CGSize = global::CGSize;
+using CGPoint = global::CGPoint;
+using CGRect = global::CGRect;
 #endif
 
 namespace MonoTouch.Dialog

@@ -29,8 +29,8 @@ using NSAction = global::System.Action;
 #else
 using MonoTouch.UIKit;
 using MonoTouch.CoreGraphics;
-using MonoTouch.Foundation;
-using MonoTouch.CoreAnimation;
+using Foundation;
+using CoreAnimation;
 #endif
 
 using MonoTouch.Dialog.Utilities;
@@ -40,9 +40,9 @@ using nint = global::System.Int32;
 using nuint = global::System.UInt32;
 using nfloat = global::System.Single;
 
-using CGSize = global::System.Drawing.SizeF;
-using CGPoint = global::System.Drawing.PointF;
-using CGRect = global::System.Drawing.RectangleF;
+using CGSize = global::CGSize;
+using CGPoint = global::CGPoint;
+using CGRect = global::CGRect;
 #endif
 
 namespace MonoTouch.Dialog
@@ -1304,7 +1304,7 @@ namespace MonoTouch.Dialog
 #if XAMCORE_2_0
 			currentController.DismissModalViewController (true);
 #else
-			currentController.DismissModalViewControllerAnimated (true);
+			currentController.DismissModalViewController (true);
 #endif		
 		}
 		
@@ -1831,10 +1831,18 @@ namespace MonoTouch.Dialog
 				Locale = NSLocale.CurrentLocale,
 				TimeZone = NSTimeZone.FromAbbreviation("GMT"),
 				Calendar = NSCalendar.CurrentCalendar,
-				Date = GetDateWithKind(DateValue),
+				Date = DateTimeToNSDate(GetDateWithKind(DateValue)),
 				MinuteInterval = MinuteInterval
 			};
 			return picker;
+		}
+
+		public static NSDate DateTimeToNSDate(DateTime date)
+		{
+		    DateTime reference = TimeZone.CurrentTimeZone.ToLocalTime(
+		        new DateTime(2001, 1, 1, 0, 0, 0) );
+		    return NSDate.FromTimeIntervalSinceReferenceDate(
+		        (date - reference).TotalSeconds);
 		}
 		                                                                                                                                
 		public static CGRect PickerFrameWithSize (CGSize size, CGRect screenFrame = default(CGRect))
@@ -1845,7 +1853,7 @@ namespace MonoTouch.Dialog
 			else
 				screenRect = screenFrame;
 
-			float fY = 0, fX = 0;
+			nfloat fY = 0, fX = 0;
 			
 			switch (UIApplication.SharedApplication.StatusBarOrientation){
 			case UIInterfaceOrientation.LandscapeLeft:

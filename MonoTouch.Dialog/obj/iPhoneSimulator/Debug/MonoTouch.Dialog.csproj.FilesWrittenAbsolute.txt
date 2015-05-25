@@ -1,0 +1,6 @@
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/obj/iPhoneSimulator/Debug/Xamarin.iOS,Version=v1.0.AssemblyAttribute.cs
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/obj/iPhoneSimulator/Debug/MonoTouch.Dialog.Images.arrow.png
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/bin/iPhoneSimulator/Debug/MonoTouch.Dialog.dll.mdb
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/bin/iPhoneSimulator/Debug/MonoTouch.Dialog.dll
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/obj/iPhoneSimulator/Debug/MonoTouch.Dialog.dll
+/Users/bja/Workspaces/Xamarin/Certipad/MonoTouch.Dialog/MonoTouch.Dialog/obj/iPhoneSimulator/Debug/MonoTouch.Dialog.dll.mdb

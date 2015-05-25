@@ -23,7 +23,7 @@ using System;
 #if XAMCORE_2_0
 using Foundation;
 #else
-using MonoTouch.Foundation;
+using Foundation;
 #endif
 
 namespace MonoTouch.Dialog

@@ -34,9 +34,9 @@ using Foundation;
 using UIKit;
 using CoreGraphics;
 #else
-using MonoTouch.Foundation;
-using MonoTouch.UIKit;
-using MonoTouch.CoreGraphics;
+using Foundation;
+using UIKit;
+using CoreGraphics;
 #endif
 
 using MonoTouch.Dialog.Utilities;
